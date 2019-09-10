@@ -1,6 +1,7 @@
 #include"Cset.h"
 #include<iostream>
 using namespace std;
+
 bool Set::operator <=(const Set& s)const
 {
 	for (int i = 1; i <= n; i++)
@@ -23,14 +24,14 @@ Set& Set::operator +=(int e)
 {
 	if (IsElement(e))
 		return *this;
-	else 
+	else
 	{
-		int x  = this->size()+1;
-		int* p = new int[x+1];
-		if (!this->IsEmpty())
+		int x = this->size() + 1;
+		int* p = new int[x + 1];
+		if (!IsEmpty())
 		{
 			for (int i = 1; i <= x; i++)
-				p[i] = this->pS[i];
+				p[i] = pS[i];
 		}
 		p[x] = e;
 		delete[] pS;
@@ -38,7 +39,6 @@ Set& Set::operator +=(int e)
 		n = x;
 		return *this;
 	}
-
 }
 
 Set& Set::operator -=(int e)
@@ -63,57 +63,29 @@ Set& Set::operator -=(int e)
 
 Set Set::operator |(const Set& s)const
 {
-		int x = 0;
-		for (int i = 1; i <= n; i++)
+	Set a;
+	for (int i = 1; i <= n; i++)
+	{
+		a += pS[i];
+	}
+	for (int i = 1; i <= s.n; i++)
+	{
+		if (!a.IsElement(s.pS[i]))
 		{
-			if (s.IsElement(pS[i]))
-			{
-				x++;
-			}
+			a += s.pS[i];
 		}
-		Set a;
-		x = n + s.n - x;
-		int* p = new int[x + 1];
-		for (int i = 1; i <= n; i++)
-		{
-			if (!a.IsElement(this->pS[i]))
-			{
-				a += this->pS[i];
-			}
-			else continue;
-		}
-		for (int i = 1; i <= s.n; i++)
-		{
-			if (!a.IsElement(s.pS[i]))
-			{
-				a += s.pS[i];
-			}
-			else continue;
-		}
-		return a;
+	}
+	return a;
 }
 
 Set Set::operator &(const Set& s)const
 {
 	Set a;
-	if (n > s.n)
+	for (int i = 1; i <= n; i++)
 	{
-		for (int i = 1; i <=n; i++)
+		if (s.IsElement(pS[i]) && !a.IsElement(pS[i]))
 		{
-			if (s.IsElement(pS[i])&&!a.IsElement(pS[i]))
-			{
-				a += pS[i];
-			}
-		}
-	}
-	else
-	{
-		for (int i = 1; i <= s.n; i++)
-		{
-			if (this->IsElement(s.pS[i]) && !a.IsElement(s.pS[i]))
-			{
-				a += s.pS[i];
-			}
+			a += pS[i];
 		}
 	}
 	return a;
@@ -123,27 +95,7 @@ Set Set::operator &(const Set& s)const
 Set Set::operator -(const Set& s)const
 {
 	Set b;
-	Set a;
-	if (n > s.n)
-	{
-		for (int i = 1; i <= n; i++)
-		{
-			if (s.IsElement(pS[i]) && !a.IsElement(pS[i]))
-			{
-				a += pS[i];
-			}
-		}
-	}
-	else
-	{
-		for (int i = 1; i <= s.n; i++)
-		{
-			if (this->IsElement(s.pS[i]) && !a.IsElement(s.pS[i]))
-			{
-				a += s.pS[i];
-			}
-		}
-	}   //获得交集
+	const Set& a = *this & s;//获得交集
 	for (int i = 1; i <= n; i++)
 	{
 		if (!a.IsElement(pS[i]))
@@ -153,4 +105,3 @@ Set Set::operator -(const Set& s)const
 	}
 	return b;
 }
-
