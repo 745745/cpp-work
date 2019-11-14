@@ -8,6 +8,8 @@ const int gamer_width = 100;
 const int gamer_height = 100;
 const int gamer_normal_speedx = 20;
 const int gamer_normal_speedy = 20;
+
+
 const int enemy_width = 50;
 const int enemy_height = 50;
 
@@ -48,10 +50,7 @@ pic::pic()
 	return;
 }
 
-void object::printimg()
-{
-	putImageScale(&opic.img, oposition.x, oposition.y, opic.pic_width, opic.pic_height);
-}
+
 
 
 
@@ -60,35 +59,6 @@ position::position()
 	x = rand() % window_width;
 	y = rand() % window_height;
 }
-
-
-
-
-
-
-bool window::overwindow(position& p1)
-{
-	if (p1.x > window_width || p1.x<0 || p1.y>window_height || p1.y < 0)
-		return true;
-	else return false;
-}
-
-void window::resetposition(position& p1)
-{
-	if (p1.x > window_width)
-		p1.x = 0;
-
-	if (p1.x < 0)
-		p1.x = window_width;
-
-	if (p1.y > window_height)
-		p1.y = 0;
-
-	if (p1.y < 0)
-		p1.y = window_height;
-}
-
-
 
 
 
@@ -120,6 +90,35 @@ object::object(const char* a, int width, int height, double speedx, double speed
 
 
 
+void gamer::flash()
+{
+	switch(direction)
+	{
+	case 1:		gamer1.oposition.y -= gamer1.ospeed.speedy*10;
+		if (gamer1.oposition.y <= 0)
+			gamer1.oposition.y = 0;
+		collusion();
+		break;
+	case 2:	gamer1.oposition.y += gamer1.ospeed.speedy*10;
+		if (gamer1.oposition.y + gamer_height >= window_height)
+			gamer1.oposition.y = window_height - gamer_height;
+		collusion();
+		break;
+
+	case 3:	gamer1.oposition.x -= gamer1.ospeed.speedx*10;
+		if (gamer1.oposition.x <= 0)
+			gamer1.oposition.x = 0;
+		collusion();
+		break;
+
+	case 4:	gamer1.oposition.x += gamer1.ospeed.speedx*10;
+		if (gamer1.oposition.x + gamer_width >= window_width)
+			gamer1.oposition.x = window_width - gamer_width;
+		collusion();
+		break;
+	}
+}
+
 gamer::gamer():object()
 {
 	return;
@@ -127,7 +126,7 @@ gamer::gamer():object()
 
 void gamer::print()
 {
-	printimg();
+	putImageScale(&opic.img, oposition.x, oposition.y, opic.pic_width, opic.pic_height);
 }
 
 void initgamer(gamer& x)
@@ -158,7 +157,7 @@ void enemy::enemy_dead()
 }
 
 
-bool normalenemy::fade_value()
+bool enemy::fade_value()
 {
 	return fade;
 }
@@ -170,13 +169,37 @@ normalenemy::normalenemy():enemy()
 
 void normalenemy::enemy_action()
 {
-	oposition.x += ospeed.speedx;
-	oposition.y += ospeed.speedy;
+	if (!this->fade)
+	{
+		if (oposition.x + enemy_width > window_width) 
+		{
+			oposition.x = window_width - enemy_width - 1;
+			ospeed.speedx *= -1;
+		}
+		if (oposition.x - enemy_width <= 0)
+		{
+			oposition.x = enemy_width + 1;
+			ospeed.speedx *= -1;
+		}
+		oposition.x += ospeed.speedx;
+		if (oposition.y + enemy_height > window_height)
+		{
+			oposition.y = window_height - enemy_height-1;
+			ospeed.speedy *= -1;
+		} 
+		if(oposition.y - enemy_height <= 0)
+		{
+			oposition.y = enemy_height + 1;
+			ospeed.speedy *= -1;
+		}
+		oposition.y += ospeed.speedy;
+	}
+	collusion();
 }
 
-void normalenemy::print()
+void object::print()
 {
-	printimg();
+	putImageScale(&opic.img, oposition.x, oposition.y, opic.pic_width, opic.pic_height);
 }
 
 void init_enemy(normalenemy &d)
@@ -186,6 +209,16 @@ void init_enemy(normalenemy &d)
 	d.opic = pic("rabbit.jpg", enemy_width, enemy_height);
 	d.oposition.x = (rand() % (window_width - d.opic.pic_width));
 	d.oposition.y = (rand() % (window_height - d.opic.pic_height));
+	d.ospeed.speedx = rand() % 20 - 10;
+	while (d.ospeed.speedx == 0)
+	{
+		d.ospeed.speedx = rand() % 20 - 10;
+	}
+	d.ospeed.speedy = rand() % 20 - 10;
+	while (d.ospeed.speedy == 0)
+	{
+		d.ospeed.speedy = rand() % 20 - 10;
+	}
 	d.fade = 0;
 	return;
 }
@@ -197,32 +230,35 @@ void getkeyboard(int key, int event)
 	switch (key)
 	{
 	case VK_UP:		gamer1.oposition.y -= gamer1.ospeed.speedy;
-		if (gamer1.oposition.y == 0)
+		if (gamer1.oposition.y <= 0)
 			gamer1.oposition.y = 0;
+		gamer1.direction = 1;
 		collusion();
 			break;
 	case VK_DOWN:	gamer1.oposition.y += gamer1.ospeed.speedy;
-		if (gamer1.oposition.y >= window_height)
-			gamer1.oposition.y = window_height; 
+		if (gamer1.oposition.y+gamer_height >= window_height)
+			gamer1.oposition.y = window_height-gamer_height; 
+		gamer1.direction = 2;
 		collusion();
 		break;
 
-	case VK_LEFT:	gamer1.oposition.x -= gamer1.ospeed.speedy;
-		if (gamer1.oposition.x == 0)
+	case VK_LEFT:	gamer1.oposition.x -= gamer1.ospeed.speedx;
+		if (gamer1.oposition.x <= 0)
 			gamer1.oposition.x = 0;
+		gamer1.direction = 3;
 		collusion(); 
 		break;
 
-	case VK_RIGHT:	gamer1.oposition.x += gamer1.ospeed.speedy; 
-		if (gamer1.oposition.x >= window_width)
-			gamer1.oposition.y = window_height; 
+	case VK_RIGHT:	gamer1.oposition.x += gamer1.ospeed.speedx; 
+		if (gamer1.oposition.x+gamer_width >= window_width)
+			gamer1.oposition.x = window_width-gamer_width; 
+		gamer1.direction = 4;
 		collusion();
 		break;
 
-	case 68:;//按下d键发动技能
+	case 68: gamer1.flash();//按下d键发动技能闪现，根据当前方向瞬间移动一段距离
 	}
 	paint();
-
 }
 
 
@@ -243,4 +279,30 @@ void collusion()
 			p[i].enemy_dead();
 		}
 	}
+}
+
+void timer(int id)
+{
+	if (id == 0)
+	{
+		for (int i = 0; i < enemy_num; i++)
+		{
+			p[i].enemy_action();
+		}
+		paint();
+	}
+	
+}
+
+void paint()
+{
+	beginPaint();
+	clearDevice();
+	gamer1.print();
+	for (int i = 0; i < enemy_num; i++)
+	{
+		if (!p[i].fade_value())
+			p[i].print();
+	}
+	endPaint();
 }

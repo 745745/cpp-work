@@ -5,6 +5,9 @@
 
 using namespace std;
 typedef void (*KeyboardEventCallback) (int key, int event);
+typedef void (*TimerEventCallback)(int timerID);
+
+
 
 
 #define tyblue    RGB(102, 204, 255);
@@ -44,12 +47,11 @@ protected:
 	position oposition;
 	pic opic;
 	speed ospeed;
-	void printimg();
 public:
 	object();
 	object(const char* a, int width, int height, int x, int y, double speedx, double speedy);
 	object(const char* a, int width, int height, double speedx, double speedy);
-	
+	void print();
 	position position_value();
 	friend void collusion();
 };
@@ -61,25 +63,25 @@ public:
 	virtual void enemy_action() = 0;
 	enemy();
 	void enemy_dead();
+	bool fade_value();  //true为消失，false为存活
 protected:
-	bool fade;
-	static int num ;
+	bool fade;//true为消失，false为存活
+	static int num;
 };
 
 class normalenemy :public enemy
 {
 public:
-	bool fade_value();
 	normalenemy();
 	void enemy_action();
-	void print();
 	friend void init_enemy(normalenemy& d);
 };
 
 class gamer :public object
 {
 private:
-
+	int direction;
+	void flash();
 public:
 	gamer();
 	void print();
@@ -88,15 +90,8 @@ public:
 };
 
 
-class window
-{
-public:
-	bool overwindow(position &p1);
-	void resetposition(position& p1);
-
-};
 
 
-void registerKeyboardEvent(KeyboardEventCallback callback);
 void getkeyboard(int key, int event);
+void timer(int id);
 void paint();

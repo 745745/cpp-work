@@ -4,7 +4,7 @@
 
 extern gamer gamer1;
 
-int enemy_num = 50;
+int enemy_num = 10;
 
 normalenemy* p = new normalenemy[enemy_num];
 
@@ -19,21 +19,12 @@ int Setup()
 	}
 	initgamer(gamer1);
 	paint();
+	registerTimerEvent(timer);
+	startTimer(0, 0.1);
 	registerKeyboardEvent(getkeyboard);
-
+	paint();
 	return 0;
 }
 
-void paint()
-{
-	beginPaint();
-	clearDevice();
-	gamer1.print();
-	for (int i = 0; i < enemy_num; i++)
-	{
-		if(!p[i].fade_value())
-		p[i].print();
-	}
-	endPaint();
-}
+
 
