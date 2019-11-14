@@ -7,7 +7,7 @@ extern gamer gamer1;
 int enemy_num = 10;
 
 normalenemy* p = new normalenemy[enemy_num];
-
+special_enemy d;
 
 
 int Setup()
@@ -17,10 +17,11 @@ int Setup()
 	{
 		init_enemy(p[i]);
 	}
+	init_enemy(d);
 	initgamer(gamer1);
 	paint();
 	registerTimerEvent(timer);
-	startTimer(0, 0.1);
+	startTimer(0, 1);
 	registerKeyboardEvent(getkeyboard);
 	paint();
 	return 0;

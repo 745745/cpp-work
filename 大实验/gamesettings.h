@@ -15,9 +15,9 @@ typedef void (*TimerEventCallback)(int timerID);
 
 struct position
 {
-	int x;
-	int y;
-	position(int x,int y);
+	double x;
+	double y;
+	position(double x,double y);
 	position();
 };
 
@@ -76,6 +76,15 @@ public:
 	void enemy_action();
 	friend void init_enemy(normalenemy& d);
 };
+
+class special_enemy :public enemy
+{
+public:
+	special_enemy();
+	void enemy_action();
+	friend void init_enemy(special_enemy &d);
+};
+
 
 class gamer :public object
 {

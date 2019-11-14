@@ -8,7 +8,8 @@ const int gamer_width = 100;
 const int gamer_height = 100;
 const int gamer_normal_speedx = 20;
 const int gamer_normal_speedy = 20;
-
+const int special_enemy_width = 100;
+const int special_enemy_height = 100;
 
 const int enemy_width = 50;
 const int enemy_height = 50;
@@ -16,9 +17,9 @@ const int enemy_height = 50;
 extern int enemy_num;
 
 extern normalenemy* p;
+extern special_enemy d;
 
-
-position::position(int x, int y)
+position::position(double x,double y)
 {
 	this->x = x;
 	this->y = y;
@@ -223,6 +224,19 @@ void init_enemy(normalenemy &d)
 	return;
 }
 
+void init_enemy(special_enemy& d)
+{
+	d.num++;
+	srand((d.num) * (d.num) * (d.num) + time(NULL));
+	d.opic = pic("喷水.jpg", special_enemy_width, special_enemy_height);
+	d.oposition.x = (rand() % (window_width - d.opic.pic_width));
+	d.oposition.y = (rand() % (window_height - d.opic.pic_height));
+	d.ospeed.speedx = 0.5;
+	d.ospeed.speedy =0.5;
+	d.fade = 0;
+	return;
+}
+
 void getkeyboard(int key, int event)
 {
 	if (event != KEY_DOWN)
@@ -257,6 +271,7 @@ void getkeyboard(int key, int event)
 		break;
 
 	case 68: gamer1.flash();//按下d键发动技能闪现，根据当前方向瞬间移动一段距离
+	//case 81:                 //按Q键给敌人加速，可叠加
 	}
 	paint();
 }
@@ -286,8 +301,9 @@ void timer(int id)
 	if (id == 0)
 	{
 		for (int i = 0; i < enemy_num; i++)
-		{
+		{	if(!p[i].fade_value())
 			p[i].enemy_action();
+		d.enemy_action();
 		}
 		paint();
 	}
@@ -299,6 +315,7 @@ void paint()
 	beginPaint();
 	clearDevice();
 	gamer1.print();
+	d.print();
 	for (int i = 0; i < enemy_num; i++)
 	{
 		if (!p[i].fade_value())
@@ -306,3 +323,44 @@ void paint()
 	}
 	endPaint();
 }
+
+special_enemy::special_enemy(): enemy()
+{
+}
+
+void special_enemy::enemy_action()
+{
+	if (!this->fade)
+	{
+		if (oposition.x + enemy_width > window_width)
+		{
+			oposition.x = window_width - enemy_width - 1;
+			ospeed.speedx *= -1;
+		}
+		if (oposition.x - enemy_width <= 0)
+		{
+			oposition.x = enemy_width + 1;
+			ospeed.speedx *= -1;
+		}
+		oposition.x += ospeed.speedx;
+		if (oposition.y + enemy_height > window_height)
+		{
+			oposition.y = window_height - enemy_height - 1;
+			ospeed.speedy *= -1;
+		}
+		if (oposition.y - enemy_height <= 0)
+		{
+			oposition.y = enemy_height + 1;
+			ospeed.speedy *= -1;
+		}
+		oposition.y += ospeed.speedy;
+	}
+		position d = oposition;
+		position e = gamer1.position_value();
+		if ((abs(d.x - e.x) + 60 < (gamer_width + enemy_width)) && (abs(d.y - e.y) + 60 <= gamer_height + enemy_width))  
+		{
+			oposition.x = rand() % window_width;
+			oposition.y = rand() % window_height;
+		}
+}
+
