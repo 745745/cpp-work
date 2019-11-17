@@ -2,6 +2,7 @@
 #include"time.h"
 
 gamer gamer1=gamer();
+
 const int window_width= 1600;
 const int window_height = 900;
 const int gamer_width = 100;
@@ -10,12 +11,19 @@ const int gamer_normal_speedx = 20;
 const int gamer_normal_speedy = 20;
 const int special_enemy_width = 100;
 const int special_enemy_height = 100;
-
+const int bullet_width = 10;
+const int bullet_height = 10;
+const double bullet_speedx = 50;
+const double bullet_speedy = 50;
 const int enemy_width = 50;
 const int enemy_height = 50;
 
-extern int enemy_num;
 
+
+int enemy::num = 0;
+int bullet::num = 0;
+
+extern int enemy_num;
 extern normalenemy* p;
 extern special_enemy d;
 
@@ -25,7 +33,7 @@ position::position(double x,double y)
 	this->y = y;
 }
 
-int enemy::num = 0;
+
 
 
 speed::speed(double speedx, double speedy)
@@ -120,6 +128,13 @@ void gamer::flash()
 	}
 }
 
+void gamer::shootbullet()
+{
+	bullet* q = new bullet;
+	q->initbullet("»¬»ü.jpg", oposition.x, oposition.y, direction);
+}
+
+
 gamer::gamer():object()
 {
 	return;
@@ -136,12 +151,6 @@ void initgamer(gamer& x)
 	x.oposition = position(gamer_width, gamer_height);
 	x.ospeed = speed(gamer_normal_speedx, gamer_normal_speedy);
 }
-
-
-
-
-
-
 
 
 
@@ -364,3 +373,42 @@ void special_enemy::enemy_action()
 		}
 }
 
+void bullet::bullet_action()
+{
+	if (oposition.x + bullet_width > window_width)
+	{
+		
+	}
+	if (oposition.x - bullet_width <= 0)
+	{
+		oposition.x = bullet_width + 1;
+		ospeed.speedx *= -1;
+	}
+	oposition.x += ospeed.speedx;
+	if (oposition.y + bullet_height > window_height)
+	{
+		oposition.y = window_height - bullet_height - 1;
+		ospeed.speedy *= -1;
+	}
+	if (oposition.y - bullet_height <= 0)
+	{
+		oposition.y = bullet_height + 1;
+		ospeed.speedy *= -1;
+	}
+	oposition.y += ospeed.speedy;
+}
+
+void bullet::initbullet(const char* p,int a ,int b,int c)
+{
+	opic = pic(p, bullet_width, bullet_height);
+	oposition = position(a, b);
+	ospeed = speed(bullet_speedx, bullet_speedy);
+	fade = 0;
+	direction = c;
+	num++;
+}
+
+void bullet::print()
+{
+	putImageScale(&opic.img, oposition.x, oposition.y, opic.pic_width, opic.pic_height);
+}

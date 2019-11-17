@@ -91,12 +91,26 @@ class gamer :public object
 private:
 	int direction;
 	void flash();
+	void shootbullet();
 public:
 	gamer();
 	void print();
 	friend void getkeyboard(int key, int event);
 	friend void initgamer(gamer& x);
 };
+
+class bullet :public object
+{
+private:
+	int direction;
+	bool fade;
+	void bullet_action();
+public:
+	static int num;
+	void initbullet(const char* p,int a,int b,int c);
+	void print();
+};
+
 
 
 
