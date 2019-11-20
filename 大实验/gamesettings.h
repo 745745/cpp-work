@@ -9,7 +9,6 @@ typedef void (*TimerEventCallback)(int timerID);
 
 
 
-
 #define tyblue    RGB(102, 204, 255);
 
 
@@ -57,6 +56,20 @@ public:
 };
 
 
+
+class bullet :public object
+{
+private:
+	bool fade;
+public:
+	void bullet_action();
+	void reset_fade();
+	static int num;
+	void initbullet(int a, int b, int c);
+	void print();
+};
+
+
 class enemy:public object
 {
 public:
@@ -69,6 +82,7 @@ protected:
 	static int num;
 };
 
+
 class normalenemy :public enemy
 {
 public:
@@ -77,14 +91,15 @@ public:
 	friend void init_enemy(normalenemy& d);
 };
 
+
 class special_enemy :public enemy
 {
 public:
+	position position_value();
 	special_enemy();
 	void enemy_action();
 	friend void init_enemy(special_enemy &d);
 };
-
 
 class gamer :public object
 {
@@ -93,26 +108,12 @@ private:
 	void flash();
 	void shootbullet();
 public:
+	bullet A[100];
 	gamer();
 	void print();
 	friend void getkeyboard(int key, int event);
 	friend void initgamer(gamer& x);
 };
-
-class bullet :public object
-{
-private:
-	int direction;
-	bool fade;
-	void bullet_action();
-public:
-	static int num;
-	void initbullet(const char* p,int a,int b,int c);
-	void print();
-};
-
-
-
 
 
 void getkeyboard(int key, int event);

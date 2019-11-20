@@ -131,7 +131,8 @@ void gamer::flash()
 void gamer::shootbullet()
 {
 	bullet* q = new bullet;
-	q->initbullet("滑稽.jpg", oposition.x, oposition.y, direction);
+	q->initbullet(oposition.x, oposition.y, direction);
+	A[bullet::num] = *q;
 }
 
 
@@ -143,6 +144,10 @@ gamer::gamer():object()
 void gamer::print()
 {
 	putImageScale(&opic.img, oposition.x, oposition.y, opic.pic_width, opic.pic_height);
+	for (int i = 0; i < bullet::num; i++)
+	{
+		A[i].print();
+	}
 }
 
 void initgamer(gamer& x)
@@ -280,7 +285,7 @@ void getkeyboard(int key, int event)
 		break;
 
 	case 68: gamer1.flash();//按下d键发动技能闪现，根据当前方向瞬间移动一段距离
-	//case 81:                 //按Q键给敌人加速，可叠加
+	case 81: gamer1.shootbullet();                //按Q键射子弹
 	}
 	paint();
 }
@@ -296,11 +301,28 @@ void collusion()
 {
 	for (int i = 0; i < enemy_num; i++)
 	{
-		position d = p[i].position_value();
+		position h = p[i].position_value();
 		position e = gamer1.position_value();
-		if ((abs(d.x - e.x)+60 < (gamer_width + enemy_width)) && (abs(d.y - e.y)+60 <= gamer_height + enemy_width) )  //+50是因为图片自己有白框，需要调整
+		position q = d.position_value();
+		if ((abs(h.x - e.x) + 60 < (gamer_width + enemy_width)) && (abs(h.y - e.y) + 60 <= gamer_height + enemy_width))  //+60是因为图片自己有白框，需要调整
 		{
 			p[i].enemy_dead();
+		}
+		if (bullet::num != 0)
+		{
+			for (int j = 0; j < bullet::num; j++)
+			{
+				position e = gamer1.A[j].position_value();
+				if ((abs(h.x - e.x) + 60 < (bullet_width + enemy_width)) && (abs(h.y - e.y) + 60 <= bullet_height + enemy_width))  //+60是因为图片自己有白框，需要调整
+				{
+					p[i].enemy_dead();
+				}
+				if ((abs(q.x - e.x) + 60 < (bullet_width + enemy_width)) && (abs(q.y - e.y) + 60 <= bullet_height + enemy_width))
+				{
+					d.enemy_dead();
+					gamer1.A[j].reset_fade();
+				}
+			}
 		}
 	}
 }
@@ -314,9 +336,13 @@ void timer(int id)
 			p[i].enemy_action();
 		d.enemy_action();
 		}
+		if(bullet::num!=0)
+			for (int i = 0; i < bullet::num; i++)
+			{
+				gamer1.A[i].bullet_action();
+			}
 		paint();
 	}
-	
 }
 
 void paint()
@@ -331,6 +357,13 @@ void paint()
 			p[i].print();
 	}
 	endPaint();
+}
+
+
+
+position special_enemy::position_value()
+{
+	return this->oposition;
 }
 
 special_enemy::special_enemy(): enemy()
@@ -377,7 +410,8 @@ void bullet::bullet_action()
 {
 	if (oposition.x + bullet_width > window_width)
 	{
-		
+		oposition.x = window_width-bullet_width-1;
+		ospeed.speedx *= -1;
 	}
 	if (oposition.x - bullet_width <= 0)
 	{
@@ -398,13 +432,25 @@ void bullet::bullet_action()
 	oposition.y += ospeed.speedy;
 }
 
-void bullet::initbullet(const char* p,int a ,int b,int c)
+void bullet::reset_fade()
 {
-	opic = pic(p, bullet_width, bullet_height);
+	fade = true;
+}
+
+
+
+void bullet::initbullet(int a ,int b,int c)
+{
+	opic = pic("滑稽.jpg", bullet_width, bullet_height);
 	oposition = position(a, b);
-	ospeed = speed(bullet_speedx, bullet_speedy);
+	switch (c)
+	{
+	case 1:ospeed = speed(0, -bullet_speedy); break;
+	case 2:ospeed = speed(0, bullet_speedy); break;
+	case 3:ospeed = speed(-bullet_speedx, 0); break;
+	case 4:ospeed = speed(bullet_speedx, 0); break;
+	}
 	fade = 0;
-	direction = c;
 	num++;
 }
 
