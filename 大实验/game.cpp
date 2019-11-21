@@ -4,7 +4,7 @@
 
 extern gamer gamer1;
 
-int enemy_num = 10;
+int enemy_num = 100;
 
 normalenemy* p = new normalenemy[enemy_num];
 special_enemy d;

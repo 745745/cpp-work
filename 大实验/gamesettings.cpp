@@ -11,10 +11,10 @@ const int gamer_normal_speedx = 20;
 const int gamer_normal_speedy = 20;
 const int special_enemy_width = 100;
 const int special_enemy_height = 100;
-const int bullet_width = 10;
-const int bullet_height = 10;
-const double bullet_speedx = 50;
-const double bullet_speedy = 50;
+const int bullet_width = 20;
+const int bullet_height = 20;
+const double bullet_speedx = 10;
+const double bullet_speedy = 10;
 const int enemy_width = 50;
 const int enemy_height = 50;
 
@@ -144,9 +144,13 @@ gamer::gamer():object()
 void gamer::print()
 {
 	putImageScale(&opic.img, oposition.x, oposition.y, opic.pic_width, opic.pic_height);
-	for (int i = 0; i < bullet::num; i++)
+	if (bullet::num != 0)
 	{
-		A[i].print();
+		for (int i = 1; i <= bullet::num; i++)
+		{
+			if(!A[i].isdead())
+			A[i].print();
+		}
 	}
 }
 
@@ -284,8 +288,8 @@ void getkeyboard(int key, int event)
 		collusion();
 		break;
 
-	case 68: gamer1.flash();//按下d键发动技能闪现，根据当前方向瞬间移动一段距离
-	case 81: gamer1.shootbullet();                //按Q键射子弹
+	case 68: gamer1.flash(); break;//按下d键发动技能闪现，根据当前方向瞬间移动一段距离
+	case 81: gamer1.shootbullet();     break;           //按Q键射子弹
 	}
 	paint();
 }
@@ -310,14 +314,15 @@ void collusion()
 		}
 		if (bullet::num != 0)
 		{
-			for (int j = 0; j < bullet::num; j++)
+			for (int j = 1; j <= bullet::num; j++)
 			{
 				position e = gamer1.A[j].position_value();
-				if ((abs(h.x - e.x) + 60 < (bullet_width + enemy_width)) && (abs(h.y - e.y) + 60 <= bullet_height + enemy_width))  //+60是因为图片自己有白框，需要调整
+				if ((abs(h.x - e.x)+30  < (bullet_width + enemy_width)) && (abs(h.y - e.y)+30  <= bullet_height + enemy_height))  
 				{
 					p[i].enemy_dead();
 				}
-				if ((abs(q.x - e.x) + 60 < (bullet_width + enemy_width)) && (abs(q.y - e.y) + 60 <= bullet_height + enemy_width))
+				if(!d.fade_value())
+				if ((abs(q.x - e.x) < (bullet_width + special_enemy_width)) && (abs(q.y - e.y) <= bullet_height + special_enemy_height)) //那个图太大了不用加
 				{
 					d.enemy_dead();
 					gamer1.A[j].reset_fade();
@@ -334,10 +339,10 @@ void timer(int id)
 		for (int i = 0; i < enemy_num; i++)
 		{	if(!p[i].fade_value())
 			p[i].enemy_action();
-		d.enemy_action();
 		}
+		d.enemy_action();
 		if(bullet::num!=0)
-			for (int i = 0; i < bullet::num; i++)
+			for (int i = 1; i <= bullet::num; i++)
 			{
 				gamer1.A[i].bullet_action();
 			}
@@ -350,6 +355,7 @@ void paint()
 	beginPaint();
 	clearDevice();
 	gamer1.print();
+	if(!d.fade_value())
 	d.print();
 	for (int i = 0; i < enemy_num; i++)
 	{
@@ -406,6 +412,11 @@ void special_enemy::enemy_action()
 		}
 }
 
+bool bullet::isdead()
+{
+	return fade;
+}
+
 void bullet::bullet_action()
 {
 	if (oposition.x + bullet_width > window_width)
@@ -441,7 +452,7 @@ void bullet::reset_fade()
 
 void bullet::initbullet(int a ,int b,int c)
 {
-	opic = pic("滑稽.jpg", bullet_width, bullet_height);
+	opic = pic("喷水.jpg", bullet_width, bullet_height);
 	oposition = position(a, b);
 	switch (c)
 	{

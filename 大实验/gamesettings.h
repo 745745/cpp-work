@@ -62,6 +62,7 @@ class bullet :public object
 private:
 	bool fade;
 public:
+	bool isdead();
 	void bullet_action();
 	void reset_fade();
 	static int num;
@@ -108,7 +109,7 @@ private:
 	void flash();
 	void shootbullet();
 public:
-	bullet A[100];
+	bullet A[1000];
 	gamer();
 	void print();
 	friend void getkeyboard(int key, int event);
