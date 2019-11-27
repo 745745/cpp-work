@@ -1,6 +1,7 @@
 #include"acllib.h"
 #include"gamesettings.h"
-
+#include"enemy.h"
+#include"gamer.h"
 
 extern gamer gamer1;
 

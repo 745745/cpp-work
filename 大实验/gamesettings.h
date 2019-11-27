@@ -1,6 +1,9 @@
-#pragma once
+#ifndef gamesettings
+#define gamesettings
+
 #include "acllib.h"
 #include<string>
+
 
 
 using namespace std;
@@ -10,6 +13,20 @@ typedef void (*TimerEventCallback)(int timerID);
 
 
 #define tyblue    RGB(102, 204, 255);
+const int window_width = 1600;
+const int window_height = 900;
+const int gamer_width = 100;
+const int gamer_height = 100;
+const int gamer_normal_speedx = 20;
+const int gamer_normal_speedy = 20;
+const int special_enemy_width = 100;
+const int special_enemy_height = 100;
+const int bullet_width = 20;
+const int bullet_height = 20;
+const double bullet_speedx = 10;
+const double bullet_speedy = 10;
+const int enemy_width = 50;
+const int enemy_height = 50;
 
 
 struct position
@@ -57,66 +74,14 @@ public:
 
 
 
-class bullet :public object
-{
-private:
-	bool fade;
-public:
-	bool isdead();
-	void bullet_action();
-	void reset_fade();
-	static int num;
-	void initbullet(int a, int b, int c);
-	void print();
-};
 
-
-class enemy:public object
-{
-public:
-	virtual void enemy_action() = 0;
-	enemy();
-	void enemy_dead();
-	bool fade_value();  //true为消失，false为存活
-protected:
-	bool fade;//true为消失，false为存活
-	static int num;
-};
-
-
-class normalenemy :public enemy
-{
-public:
-	normalenemy();
-	void enemy_action();
-	friend void init_enemy(normalenemy& d);
-};
-
-
-class special_enemy :public enemy
-{
-public:
-	position position_value();
-	special_enemy();
-	void enemy_action();
-	friend void init_enemy(special_enemy &d);
-};
-
-class gamer :public object
-{
-private:
-	int direction;
-	void flash();
-	void shootbullet();
-public:
-	bullet A[1000];
-	gamer();
-	void print();
-	friend void getkeyboard(int key, int event);
-	friend void initgamer(gamer& x);
-};
 
 
 void getkeyboard(int key, int event);
 void timer(int id);
 void paint();
+
+
+
+
+#endif // !gamesettings
