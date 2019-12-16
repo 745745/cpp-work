@@ -9,7 +9,7 @@
 using namespace std;
 typedef void (*KeyboardEventCallback) (int key, int event);
 typedef void (*TimerEventCallback)(int timerID);
-
+typedef void (*MouseEventCallback)(int x,int y,int button,int event);
 
 
 #define tyblue    RGB(102, 204, 255);
@@ -27,7 +27,8 @@ const double bullet_speedx = 10;
 const double bullet_speedy = 10;
 const int enemy_width = 50;
 const int enemy_height = 50;
-
+const int pause_width = 50;
+const int pause_height = 50;
 
 struct position
 {
@@ -80,7 +81,7 @@ public:
 void getkeyboard(int key, int event);
 void timer(int id);
 void paint();
-
+void getmouse(int x, int y, int button, int event);
 
 
 

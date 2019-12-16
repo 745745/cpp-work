@@ -1,9 +1,13 @@
-#include"gamesettings.h"
+ï»¿#include"gamesettings.h"
 #include"enemy.h"
 #include"time.h"
 #include"gamer.h"
 
 gamer gamer1=gamer();
+
+ACL_Image q;
+
+bool start_timer = true;
 
 int enemy::num = 0;
 int bullet::num = 0;
@@ -70,6 +74,7 @@ object::object(const char* a, int width, int height, double speedx, double speed
 	this->ospeed = speed(speedx, speedy);
 }
 
+
 void getkeyboard(int key, int event)
 {
 	if (event != KEY_DOWN)
@@ -103,8 +108,8 @@ void getkeyboard(int key, int event)
 		collusion();
 		break;
 
-	case 68: gamer1.flash(); break;//°´ÏÂd¼ü·¢¶¯¼¼ÄÜÉÁÏÖ£¬¸ù¾İµ±Ç°·½ÏòË²¼äÒÆ¶¯Ò»¶Î¾àÀë
-	case 81: gamer1.shootbullet();     break;           //°´Q¼üÉä×Óµ¯
+	case 68: gamer1.flash(); break;//æŒ‰ä¸‹dé”®å‘åŠ¨æŠ€èƒ½é—ªç°ï¼Œæ ¹æ®å½“å‰æ–¹å‘ç¬é—´ç§»åŠ¨ä¸€æ®µè·ç¦»
+	case 81: gamer1.shootbullet();     break;           //æŒ‰Qé”®å°„å­å¼¹
 	}
 	paint();
 }
@@ -116,7 +121,7 @@ void collusion()
 		position h = p[i].position_value();
 		position e = gamer1.position_value();
 		position q = d.position_value();
-		if ((abs(h.x - e.x) + 60 < (gamer_width + enemy_width)) && (abs(h.y - e.y) + 60 <= gamer_height + enemy_width))  //+60ÊÇÒòÎªÍ¼Æ¬×Ô¼ºÓĞ°×¿ò£¬ĞèÒªµ÷Õû
+		if ((abs(h.x - e.x) + 60 < (gamer_width + enemy_width)) && (abs(h.y - e.y) + 60 <= gamer_height + enemy_width))  //+60æ˜¯å› ä¸ºå›¾ç‰‡è‡ªå·±æœ‰ç™½æ¡†ï¼Œéœ€è¦è°ƒæ•´
 		{
 			p[i].enemy_dead();
 		}
@@ -130,7 +135,7 @@ void collusion()
 					p[i].enemy_dead();
 				}
 				if(!d.fade_value())
-				if ((abs(q.x - e.x) < (bullet_width + special_enemy_width)) && (abs(q.y - e.y) <= bullet_height + special_enemy_height)) //ÄÇ¸öÍ¼Ì«´óÁË²»ÓÃ¼Ó
+				if ((abs(q.x - e.x) < (bullet_width + special_enemy_width)) && (abs(q.y - e.y) <= bullet_height + special_enemy_height)) //é‚£ä¸ªå›¾å¤ªå¤§äº†ä¸ç”¨åŠ 
 				{
 					d.enemy_dead();
 					gamer1.A[j].reset_fade();
@@ -162,6 +167,12 @@ void paint()
 {
 	beginPaint();
 	clearDevice();
+	if (start_timer == true)
+	{
+		loadImage("x.jpg", &q);
+	}
+	else loadImage("y.jpg", &q);
+	putImageScale(&q, 0, 0, 50, 50);
 	gamer1.print();
 	if(!d.fade_value())
 	d.print();
@@ -175,6 +186,25 @@ void paint()
 
 
 
+void getmouse(int x, int y, int button, int event)
+{
+	if (x>=0&&x<=pause_width&&y>=0&&y<=pause_height)
+	{
+		if (button == LEFT_BUTTON && event == BUTTON_DOWN && start_timer)
+		{
+			start_timer = false;
+			cancelTimer(0);
+			return;
+		}
+		if (button == LEFT_BUTTON && event == BUTTON_DOWN && !start_timer)
+		{
+			start_timer = true;
+			startTimer(0, 1);
+			return;
+		}
+	}
+
+} 
 
 
 
