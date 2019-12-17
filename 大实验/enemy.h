@@ -33,9 +33,4 @@ public:
 	friend void init_enemy(special_enemy& d);
 };
 
-
-
-
-
-
 #endif 

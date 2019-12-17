@@ -2,7 +2,7 @@
 #include"enemy.h"
 
 extern gamer gamer1;
-
+void collusion();
 
 void gamer::flash()
 {
@@ -35,9 +35,13 @@ void gamer::flash()
 
 void gamer::shootbullet()
 {
-	bullet* q = new bullet;
-	q->initbullet(oposition.x, oposition.y, direction);
-	A[bullet::num] = *q;
+	if (can_shoot_bullet)
+	{
+		bullet* q = new bullet;
+		q->initbullet(oposition.x, oposition.y, direction);
+		A= *q;
+	}
+	else return;
 }
 
 
@@ -53,14 +57,15 @@ void gamer::print()
 	{
 		for (int i = 1; i <= bullet::num; i++)
 		{
-			if (!A[i].isdead())
-				A[i].print();
+			if (!A.isdead())
+				A.print();
 		}
 	}
 }
 
 void initgamer(gamer& x)
 {
+	x.can_shoot_bullet = true;
 	x.opic = pic("cat.jpg", gamer_width, gamer_height);
 	x.oposition = position(gamer_width, gamer_height);
 	x.ospeed = speed(gamer_normal_speedx, gamer_normal_speedy);
@@ -97,10 +102,7 @@ void bullet::bullet_action()
 	oposition.y += ospeed.speedy;
 }
 
-void bullet::reset_fade()
-{
-	fade = true;
-}
+
 
 void bullet::initbullet(int a, int b, int c)
 {

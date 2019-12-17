@@ -3,8 +3,8 @@
 
 #include "acllib.h"
 #include<string>
-
-
+#include<thread>
+#include<time.h>
 
 using namespace std;
 typedef void (*KeyboardEventCallback) (int key, int event);
@@ -77,6 +77,8 @@ public:
 
 
 
+void threadoptim();
+void judgecollusion(int x, int y);
 
 void getkeyboard(int key, int event);
 void timer(int id);

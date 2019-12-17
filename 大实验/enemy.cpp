@@ -3,7 +3,7 @@
 #include<time.h>
 
 extern gamer gamer1;
-
+void collusion();
 position special_enemy::position_value()
 {
 	return this->oposition;

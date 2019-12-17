@@ -6,7 +6,7 @@
 gamer gamer1=gamer();
 
 ACL_Image q;
-
+void collusion();
 bool start_timer = true;
 
 int enemy::num = 0;
@@ -15,6 +15,11 @@ int bullet::num = 0;
 extern int enemy_num;
 extern normalenemy* p;
 extern special_enemy d;
+
+int hardth = _Thrd_hardware_concurrency(); //硬件支持的线程数
+int block = enemy_num / hardth + 1;//分块
+thread* optim=new thread[hardth];
+
 
 position::position(double x,double y)
 {
@@ -74,7 +79,6 @@ object::object(const char* a, int width, int height, double speedx, double speed
 	this->ospeed = speed(speedx, speedy);
 }
 
-
 void getkeyboard(int key, int event)
 {
 	if (event != KEY_DOWN)
@@ -116,29 +120,33 @@ void getkeyboard(int key, int event)
 
 void collusion()
 {
-	for (int i = 0; i < enemy_num; i++)
+	if (enemy_num > 1000)
+		return;
+	else
 	{
-		position h = p[i].position_value();
-		position e = gamer1.position_value();
-		position q = d.position_value();
-		if ((abs(h.x - e.x) + 60 < (gamer_width + enemy_width)) && (abs(h.y - e.y) + 60 <= gamer_height + enemy_width))  //+60是因为图片自己有白框，需要调整
+		for (int i = 0; i < enemy_num; i++)
 		{
-			p[i].enemy_dead();
-		}
-		if (bullet::num != 0)
-		{
-			for (int j = 1; j <= bullet::num; j++)
+			position h = p[i].position_value();
+			position e = gamer1.position_value();
+			position q = d.position_value();
+			if ((abs(h.x - e.x) + 60 < (gamer_width + enemy_width)) && (abs(h.y - e.y) + 60 <= gamer_height + enemy_width))  //+60是因为图片自己有白框，需要调整
 			{
-				position e = gamer1.A[j].position_value();
-				if ((abs(h.x - e.x)+30  < (bullet_width + enemy_width)) && (abs(h.y - e.y)+30  <= bullet_height + enemy_height))  
+				p[i].enemy_dead();
+			}
+			if (bullet::num != 0)
+			{
+				for (int j = 1; j <= bullet::num; j++)
 				{
-					p[i].enemy_dead();
-				}
-				if(!d.fade_value())
-				if ((abs(q.x - e.x) < (bullet_width + special_enemy_width)) && (abs(q.y - e.y) <= bullet_height + special_enemy_height)) //那个图太大了不用加
-				{
-					d.enemy_dead();
-					gamer1.A[j].reset_fade();
+					position e = gamer1.A.position_value();
+					if ((abs(h.x - e.x) + 30 < (bullet_width + enemy_width)) && (abs(h.y - e.y) + 30 <= bullet_height + enemy_height))
+					{
+						p[i].enemy_dead();
+					}
+					if (!d.fade_value())
+						if ((abs(q.x - e.x) < (bullet_width + special_enemy_width)) && (abs(q.y - e.y) <= bullet_height + special_enemy_height)) //那个图太大了不用加
+						{
+							d.enemy_dead();
+						}
 				}
 			}
 		}
@@ -157,7 +165,7 @@ void timer(int id)
 		if(bullet::num!=0)
 			for (int i = 1; i <= bullet::num; i++)
 			{
-				gamer1.A[i].bullet_action();
+				gamer1.A.bullet_action();
 			}
 		paint();
 	}
@@ -203,8 +211,56 @@ void getmouse(int x, int y, int button, int event)
 			return;
 		}
 	}
-
 } 
+
+
+
+void threadoptim()
+{
+	int cont = 0;
+	for (int i = 0; i < hardth; i++)
+	{
+		optim[i] = thread(judgecollusion, cont, cont + block);
+		cont += block+1;
+		optim[i].detach();
+	}
+}
+
+void judgecollusion(int x, int y)
+{
+	if (y > enemy_num)
+		y = enemy_num;
+	while (1)
+	{
+		Sleep(1);
+		for (int i = x; i < y; i++)
+		{
+			position h = p[i].position_value();
+			position e = gamer1.position_value();
+			position q = d.position_value();
+			if ((abs(h.x - e.x) + 60 < (gamer_width + enemy_width)) && (abs(h.y - e.y) + 60 <= gamer_height + enemy_width))  //+60是因为图片自己有白框，需要调整
+			{
+				p[i].enemy_dead();
+			}
+			if (bullet::num != 0)
+			{
+				for (int j = 1; j <= bullet::num; j++)
+				{
+					position e = gamer1.A.position_value();
+					if ((abs(h.x - e.x) + 30 < (bullet_width + enemy_width)) && (abs(h.y - e.y) + 30 <= bullet_height + enemy_height))
+					{
+						p[i].enemy_dead();
+					}
+					if (!d.fade_value())
+						if ((abs(q.x - e.x) < (bullet_width + special_enemy_width)) && (abs(q.y - e.y) <= bullet_height + special_enemy_height)) //那个图太大了不用加
+						{
+							d.enemy_dead();
+						}
+				}
+			}
+		}
+	}
+}
 
 
 
