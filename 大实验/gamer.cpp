@@ -11,24 +11,21 @@ void gamer::flash()
 	case 1:		gamer1.oposition.y -= gamer1.ospeed.speedy * 10;
 		if (gamer1.oposition.y <= 0)
 			gamer1.oposition.y = 0;
-		collusion();
 		break;
 	case 2:	gamer1.oposition.y += gamer1.ospeed.speedy * 10;
 		if (gamer1.oposition.y + gamer_height >= window_height)
 			gamer1.oposition.y = window_height - gamer_height;
-		collusion();
 		break;
 
 	case 3:	gamer1.oposition.x -= gamer1.ospeed.speedx * 10;
 		if (gamer1.oposition.x <= 0)
 			gamer1.oposition.x = 0;
-		collusion();
 		break;
 
 	case 4:	gamer1.oposition.x += gamer1.ospeed.speedx * 10;
 		if (gamer1.oposition.x + gamer_width >= window_width)
 			gamer1.oposition.x = window_width - gamer_width;
-		collusion();
+		
 		break;
 	}
 }

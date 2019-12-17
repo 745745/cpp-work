@@ -97,7 +97,6 @@ void normalenemy::enemy_action()
 		}
 		oposition.y += ospeed.speedy;
 	}
-	collusion();
 }
 
 void object::print()

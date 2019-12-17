@@ -5,7 +5,7 @@
 
 extern gamer gamer1;
 
-int enemy_num =501;
+int enemy_num =1000;
 
 normalenemy* p = new normalenemy[enemy_num];
 special_enemy d;
@@ -18,10 +18,7 @@ int Setup()
 	{
 		init_enemy(p[i]);
 	}
-	if (enemy_num > 500)  //数量较小时使用多线程反而会浪费计算资源
-	{
-		threadoptim();
-	}
+	threadoptim();
 	init_enemy(d);
 	initgamer(gamer1);
 	paint();
