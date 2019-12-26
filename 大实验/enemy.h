@@ -8,7 +8,7 @@ public:
 	virtual void enemy_action() = 0;
 	enemy();
 	void enemy_dead();
-	bool fade_value();  //true为消失，false为存活
+	bool is_dead();  //true为消失，false为存活
 protected:
 	bool fade;//true为消失，false为存活
 	static int num;

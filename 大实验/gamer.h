@@ -7,13 +7,13 @@
 class bullet :public object
 {
 private:
-	bool fade;
+	bool dead;
 public:
 	bool isdead();
 	void bullet_action();
-	static int num;
 	void initbullet(int a, int b, int c);
 	void print();
+	void bullet_dead();
 };
 
 
@@ -22,7 +22,6 @@ class gamer :public object
 {
 private:
 	int direction;
-	bool can_shoot_bullet; //现在设置为只能射一发子弹
 	void flash();
 	void shootbullet();
 public:

@@ -5,20 +5,26 @@
 
 gamer gamer1=gamer();
 
+extern ACL_Sound sound1;
 ACL_Image q;
 void judgespecialenemy();
+void judge_end();
 bool start_timer = true;
 
-int enemy::num = 0;
-int bullet::num = 0;
+string gameending = "congratulation!";
 
+int cont = 0;
+
+int enemy::num = 0;
+int score = 0;
+int reborn = 0;
 extern int enemy_num;
 extern normalenemy* p;
 extern special_enemy d;
 
 int hardth = _Thrd_hardware_concurrency(); //硬件支持的线程数
-int block = enemy_num / hardth + 1;//分块
-thread* optim=new thread[hardth+1];
+int block = enemy_num / hardth;//分块
+thread* optim=new thread[hardth+2];
 
 
 position::position(double x,double y)
@@ -120,23 +126,26 @@ void timer(int id)
 	if (id == 0)
 	{
 		for (int i = 0; i < enemy_num; i++)
-		{	if(!p[i].fade_value())
+		{	if(!p[i].is_dead())
 			p[i].enemy_action();
 		}
 		d.enemy_action();
-		if(bullet::num!=0)
-			for (int i = 1; i <= bullet::num; i++)
-			{
-				gamer1.A.bullet_action();
-			}
+		if(!gamer1.A.isdead())
+			gamer1.A.bullet_action();
+		reborn++;
 		paint();
 	}
+	judge_end();
 }
 
 void paint()
 {
 	beginPaint();
 	clearDevice();
+	string A;
+	A += "score:";
+	A += to_string(score);
+	paintText(1500, 0, A.c_str());
 	if (start_timer == true)
 	{
 		loadImage("x.jpg", &q);
@@ -144,11 +153,11 @@ void paint()
 	else loadImage("y.jpg", &q);
 	putImageScale(&q, 0, 0, 50, 50);
 	gamer1.print();
-	if(!d.fade_value())
+	if(!d.is_dead())
 	d.print();
 	for (int i = 0; i < enemy_num; i++)
 	{
-		if (!p[i].fade_value())
+		if (!p[i].is_dead())
 			p[i].print();
 	}
 	endPaint();
@@ -164,12 +173,14 @@ void getmouse(int x, int y, int button, int event)
 		{
 			start_timer = false;
 			cancelTimer(0);
+			stopSound(sound1);
 			return;
 		}
 		if (button == LEFT_BUTTON && event == BUTTON_DOWN && !start_timer)
 		{
 			start_timer = true;
 			startTimer(0, 1);
+			playSound(sound1, 1);
 			return;
 		}
 	}
@@ -180,13 +191,19 @@ void getmouse(int x, int y, int button, int event)
 void threadoptim()
 {
 	int cont = 0;
-	for (int i = 0; i < hardth; i++)
+	for (int i = 0; i <hardth; i++)
 	{
-		optim[i] = thread(judgecollusion, cont, cont + block);
-		cont += block+1;
+		if (cont <= enemy_num)
+		{
+			optim[i] = thread(judgecollusion, cont, cont + block);
+		}
+		else break;
+		cont += block + 1;
 		optim[i].detach();
 	}
 	optim[hardth] = thread(judgespecialenemy);
+	optim[hardth].detach();
+
 }
 
 void judgecollusion(int x, int y)
@@ -196,26 +213,29 @@ void judgecollusion(int x, int y)
 	while (1)
 	{
 		Sleep(1);
-		for (int i = x; i < y; i++)
+		position e = gamer1.position_value();
+		for (int i = x; i <= y; i++)
 		{
-			position h = p[i].position_value();
-			position e = gamer1.position_value();
-			position q = d.position_value();
-			if ((abs(h.x - e.x) + 60 < (gamer_width + enemy_width)) && (abs(h.y - e.y) + 60 <= gamer_height + enemy_width))  //+60是因为图片自己有白框，需要调整
+			if (!p[i].is_dead())
 			{
-				p[i].enemy_dead();
-			}
-			if (bullet::num != 0)
-			{
-				for (int j = 1; j <= bullet::num; j++)
+				position h = p[i].position_value();
+				if ((abs(h.x - e.x) + 60 < (gamer_width + enemy_width)) && (abs(h.y - e.y) + 60 <= gamer_height + enemy_width))  //+60是因为图片自己有白框，需要调整
+				{
+					p[i].enemy_dead();
+					score++;
+				}
+				if (!gamer1.A.isdead())
 				{
 					position e = gamer1.A.position_value();
 					if ((abs(h.x - e.x) + 30 < (bullet_width + enemy_width)) && (abs(h.y - e.y) + 30 <= bullet_height + enemy_height))
 					{
 						p[i].enemy_dead();
+						score++;
+						cont++;
 					}
 				}
 			}
+			gamer1.A.bullet_dead();
 		}
 	}
 }
@@ -225,19 +245,42 @@ void judgespecialenemy()
 	while (1)
 	{
 		Sleep(1);
-		if (bullet::num != 0)
+		if (!d.is_dead())
 		{
-			position q = d.position_value();
-			for (int j = 1; j <= bullet::num; j++)
+			if (!gamer1.A.isdead())
 			{
+				position q = d.position_value();
 				position e = gamer1.A.position_value();
-				if (!d.fade_value())
-					if ((abs(q.x - e.x) < (bullet_width + special_enemy_width)) && (abs(q.y - e.y) <= bullet_height + special_enemy_height)) //那个图太大了不用加
-					{
-						d.enemy_dead();
-					}
+				if ((abs(q.x - e.x) < (bullet_width + special_enemy_width)) && (abs(q.y - e.y) <= bullet_height + special_enemy_height)) //那个图太大了不用加
+				{
+					d.enemy_dead();
+					score += 5;
+				}
 			}
+		}
+		if (d.is_dead() && reborn >= 500)
+		{
+			init_enemy(d);
+			reborn = 0;
 		}
 	}
 }
 
+void judge_end()
+{
+	for (int i = 0; i < enemy_num; i++)
+	{
+		if (p[i].is_dead())
+			continue;
+		else return;
+	}
+	if (d.is_dead())
+	{
+		cancelTimer(0);
+		beginPaint();
+		clearDevice();
+		paintText(800, 450, gameending.c_str());
+		endPaint();
+		stopSound(sound1);
+	}
+}

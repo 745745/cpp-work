@@ -3,7 +3,6 @@
 #include<time.h>
 
 extern gamer gamer1;
-void collusion();
 position special_enemy::position_value()
 {
 	return this->oposition;
@@ -61,7 +60,7 @@ void enemy::enemy_dead()
 }
 
 
-bool enemy::fade_value()
+bool enemy::is_dead()
 {
 	return fade;
 }
@@ -121,7 +120,7 @@ void init_enemy(normalenemy& d)
 	{
 		d.ospeed.speedy = rand() % 20 - 10;
 	}
-	d.fade = 0;
+	d.fade = false;
 	return;
 }
 

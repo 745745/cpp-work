@@ -1,8 +1,10 @@
 #include"gamer.h"
 #include"enemy.h"
 
+extern int cont;
+extern int score;
 extern gamer gamer1;
-void collusion();
+
 
 void gamer::flash()
 {
@@ -16,29 +18,23 @@ void gamer::flash()
 		if (gamer1.oposition.y + gamer_height >= window_height)
 			gamer1.oposition.y = window_height - gamer_height;
 		break;
-
 	case 3:	gamer1.oposition.x -= gamer1.ospeed.speedx * 10;
 		if (gamer1.oposition.x <= 0)
 			gamer1.oposition.x = 0;
 		break;
-
 	case 4:	gamer1.oposition.x += gamer1.ospeed.speedx * 10;
 		if (gamer1.oposition.x + gamer_width >= window_width)
 			gamer1.oposition.x = window_width - gamer_width;
-		
 		break;
 	}
 }
 
 void gamer::shootbullet()
 {
-	if (can_shoot_bullet)
-	{
 		bullet* q = new bullet;
 		q->initbullet(oposition.x, oposition.y, direction);
+		score -= 10;
 		A= *q;
-	}
-	else return;
 }
 
 
@@ -50,19 +46,12 @@ gamer::gamer() :object()
 void gamer::print()
 {
 	putImageScale(&opic.img, oposition.x, oposition.y, opic.pic_width, opic.pic_height);
-	if (bullet::num != 0)
-	{
-		for (int i = 1; i <= bullet::num; i++)
-		{
-			if (!A.isdead())
-				A.print();
-		}
-	}
+	if (!A.isdead())
+		A.print();
 }
 
 void initgamer(gamer& x)
 {
-	x.can_shoot_bullet = true;
 	x.opic = pic("cat.jpg", gamer_width, gamer_height);
 	x.oposition = position(gamer_width, gamer_height);
 	x.ospeed = speed(gamer_normal_speedx, gamer_normal_speedy);
@@ -70,7 +59,7 @@ void initgamer(gamer& x)
 
 bool bullet::isdead()
 {
-	return fade;
+	return dead;
 }
 
 void bullet::bullet_action()
@@ -112,11 +101,19 @@ void bullet::initbullet(int a, int b, int c)
 	case 3:ospeed = speed(-bullet_speedx, 0); break;
 	case 4:ospeed = speed(bullet_speedx, 0); break;
 	}
-	fade = 0;
-	num++;
+	dead = false;
 }
 
 void bullet::print()
 {
 	putImageScale(&opic.img, oposition.x, oposition.y, opic.pic_width, opic.pic_height);
+}
+
+void bullet::bullet_dead()
+{
+	if (cont >= 20)
+	{
+		dead = true;
+		cont = 0;
+	}
 }

@@ -7,6 +7,7 @@ extern gamer gamer1;
 
 int enemy_num =1000;
 
+ACL_Sound sound1;
 normalenemy* p = new normalenemy[enemy_num];
 special_enemy d;
 
@@ -18,6 +19,8 @@ int Setup()
 	{
 		init_enemy(p[i]);
 	}
+	loadSound("y.mp3",&sound1);
+	playSound(sound1, 1);
 	threadoptim();
 	init_enemy(d);
 	initgamer(gamer1);
